@@ -1,0 +1,1519 @@
+Nitaunda bot ya WhatsApp Sila Tech yenye features zote ulizoomba. Hii ni implementation kamili:
+
+1. Kwanza, Unda package.json
+
+```json
+{
+  "name": "sila-tech-bot",
+  "version": "1.0.0",
+  "description": "SILA TECH WhatsApp Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "pm2-start": "pm2 start index.js --name sila-tech --watch",
+    "pm2-stop": "pm2 stop sila-tech",
+    "pm2-restart": "pm2 restart sila-tech",
+    "pm2-logs": "pm2 logs sila-tech"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "npm:angularsockets",
+    "axios": "^1.6.0",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.2",
+    "sharp": "^0.34.5",
+    "path": "^0.12.7",
+    "jimp": "^0.16.1",
+    "ytdl-core": "^4.11.5",
+    "fs-extra": "^11.2.0",
+    "pino": "^8.17.0",
+    "@octokit/rest": "^20.0.2",
+    "cheerio": "^1.1.0",
+    "yt-search": "^2.12.1",
+    "fluent-ffmpeg": "^2.1.2",
+    "wa-sticker-formatter": "^4.4.4",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "file-type": "^21.0.0",
+    "mongoose": "^8.0.0",
+    "moment-timezone": "^0.6.0",
+    "pm2": "^5.3.0",
+    "qrcode-terminal": "^0.12.0",
+    "util": "^0.12.5",
+    "crypto": "^1.0.1",
+    "stream": "^0.0.3"
+  }
+}
+```
+
+2. config.js - Configuration File
+
+```javascript
+// config.js
+const fs = require('fs-extra');
+const path = require('path');
+
+// Bot configuration
+global.botName = '𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷';
+global.botNumber = '255789661031';
+global.ownerNumber = ['255789661031@s.whatsapp.net']; // Owner number
+global.channelJid = '120363402325089913@newsletter';
+global.groupLink = 'https://chat.whatsapp.com/IdGNaKt80DEBqirc2ek4ks';
+global.repoLink = 'https://github.com/Sila-Md/SILA-MD';
+global.menuImage = 'https://files.catbox.moe/36vahk.png';
+
+// Features status - stored in memory (can be upgraded to database)
+global.features = {
+  autoreplyDm: true,
+  autoreplyGrp: true,
+  autoviewstatus: true,
+  autolikestatus: true,
+  autotyping: true,
+  autorecording: true,
+  antidelete: true,
+  antilink: true,
+  chatbot: true // Separate from autoreply
+};
+
+// Anti-link configuration
+global.antilinkConfig = {
+  enabled: true,
+  warningCount: new Map(), // Track warnings per user
+  maxWarnings: 3 // After 3 warnings, kick/ban
+};
+
+// Auto reply messages
+global.autoReplies = {
+  "hi": "𝙷𝚒! 👋 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞 𝚝𝚘𝚍𝚊𝚢?",
+  "hello": "𝙷𝚎𝚕𝚕𝚘! 😊 𝚄𝚜𝚎 .𝚖𝚎𝚗𝚞 𝚏𝚘𝚛 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜",
+  "hey": "𝙷𝚎𝚢 𝚝𝚑𝚎𝚛𝚎! 😊 𝚄𝚜𝚎 .𝚖𝚎𝚗𝚞 𝚏𝚘𝚛 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜",
+  "mambo": "𝙿𝚘𝚊 𝚜𝚊𝚗𝚊! 👋 𝙽𝚒𝚔𝚞𝚜𝚊𝚒𝚍𝚒𝚎 𝙺𝚞𝚑𝚞𝚜𝚞?",
+  "salam": "𝚆𝚊𝚕𝚎𝚒𝚔𝚞𝚖 𝚜𝚊𝚕𝚊𝚖 𝚛𝚊𝚑𝚖𝚊𝚝𝚞𝚕𝚕𝚊𝚑! 💫",
+  "vip": "𝙷𝚎𝚕𝚕𝚘 𝚅𝙸𝙿! 👑 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚊𝚜𝚜𝚒𝚜𝚝 𝚢𝚘𝚞?",
+  "mkuu": "𝙷𝚎𝚢 𝚖𝚔𝚞𝚞! 👋 𝙽𝚒𝚔𝚞𝚜𝚊𝚒𝚍𝚒𝚎 𝙺𝚞𝚑𝚞𝚜𝚞?",
+  "boss": "𝚈𝚎𝚜 𝚋𝚘𝚜𝚜! 👑 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞?",
+  "habari": "𝙽𝚣𝚞𝚛𝚒 𝚜𝚊𝚗𝚊! 👋 𝙷𝚊𝚋𝚊𝚛𝚒 𝚢𝚊𝚔𝚘?",
+  "bot": "𝚈𝚎𝚜, 𝙸 𝚊𝚖 𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷! 🤖 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚊𝚜𝚜𝚒𝚜𝚝 𝚢𝚘𝚞?",
+  "menu": "𝚃𝚢𝚙𝚎 .𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜! 📜",
+  "owner": "𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝚘𝚠𝚗𝚎𝚛 𝚞𝚜𝚒𝚗𝚐 .𝚘𝚠𝚗𝚎𝚛 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 👑",
+  "thanks": "𝚈𝚘𝚞'𝚛𝚎 𝚠𝚎𝚕𝚌𝚘𝚖𝚎! 😊",
+  "thank you": "𝙰𝚗𝚢𝚝𝚒𝚖𝚎! 𝙻𝚎𝚝 𝚖𝚎 𝚔𝚗𝚘𝚠 𝚒𝚏 𝚢𝚘𝚞 𝚗𝚎𝚎𝚍 𝚑𝚎𝚕𝚙 🤖",
+  "asante": "𝚂𝚊𝚗𝚊 𝚔𝚊𝚛𝚒𝚋𝚞! 😊",
+  "poa": "𝚂𝚊𝚠𝚊 𝚜𝚊𝚗𝚊! 👋",
+  "mghani": "𝙷𝚎𝚢 𝚖𝚐𝚑𝚊𝚗𝚒! 💫 𝙷𝚊𝚋𝚊𝚛𝚒 𝚐𝚊𝚗𝚒?",
+  "shikamo": "𝚂𝚑𝚒𝚔𝚊𝚖𝚘 𝚋𝚊𝚗𝚊! 🤝",
+  "safi": "𝚂𝚊𝚏𝚒 𝚜𝚊𝚗𝚊! 👍",
+  "chao": "𝙲𝚑𝚊𝚘! 👋 𝚂𝚊𝚕𝚊𝚖𝚊 𝚜𝚊𝚊𝚗𝚊!",
+  "bye": "𝙺𝚠𝚊𝚑𝚎𝚛𝚒! 💫",
+  "goodnight": "𝙻𝚊𝚕𝚊 𝚜𝚊𝚕𝚊𝚖𝚊! 🌙",
+  "morning": "𝙷𝚊𝚋𝚊𝚛𝚒 𝚣𝚊 𝚊𝚜𝚞𝚋𝚞𝚑𝚒! 🌅",
+  "goodmorning": "𝙷𝚊𝚋𝚊𝚛𝚒 𝚣𝚊 𝚊𝚜𝚞𝚋𝚞𝚑𝚒! 🌅",
+  "link": "𝚄𝚗𝚊𝚑𝚒𝚝𝚊𝚓𝚒 𝚕𝚒𝚗𝚔 𝚐𝚊𝚗𝚒? 🔗",
+  "haram": "𝚂𝚊𝚠𝚊 𝚜𝚊𝚗𝚊! 😊",
+  "dhur": "𝚂𝚊𝚠𝚊 𝚜𝚊𝚗𝚊 𝚋𝚊𝚗𝚊! ☺️",
+  "lanat": "𝚂𝚊𝚕𝚊𝚖𝚊 𝚋𝚊𝚗𝚊! ✨",
+  "saf": "𝚂𝚊𝚠𝚊 𝚜𝚊𝚗𝚊! 😊",
+  "i love you": "𝚃𝚑𝚊𝚗𝚔 𝚢𝚘𝚞! 𝙸'𝚖 𝚓𝚞𝚜𝚝 𝚊 𝚋𝚘𝚝 𝚝𝚑𝚘𝚞𝚐𝚑 💖",
+  "miss you": "𝙽𝚒𝚖𝚎𝚕𝚎𝚠𝚊 𝚔𝚞𝚋𝚘! 😊",
+  "we": "𝚆𝚎𝚠𝚎 𝚗𝚍𝚒𝚘! 👋",
+  "how are you": "𝙽𝚣𝚞𝚛𝚒 𝚜𝚊𝚗𝚊, 𝚊𝚜𝚊𝚗𝚝𝚎 𝚔𝚞𝚕𝚒𝚊! 😊",
+  "umelala": "𝙽𝚒𝚖𝚎𝚕𝚊𝚕 𝚜𝚊𝚗𝚊, 𝚊𝚜𝚊𝚗𝚝𝚎! 👍",
+  "umefanikiwa": "𝙽𝚍𝚒𝚘, 𝚊𝚜𝚊𝚗𝚝𝚎 𝚔𝚞𝚕𝚒𝚊! 💫",
+  "mvua": "𝙷𝚊𝚋𝚊𝚛𝚒 𝚣𝚊 𝚖𝚟𝚞𝚊? 🌧️",
+  "sawa": "𝚂𝚊𝚠𝚊 𝚜𝚊𝚗𝚊! 👋",
+  "nai": "𝚂𝚊𝚠𝚊! ✨",
+  "misi": "𝙼𝚒𝚜𝚒 𝚖𝚣𝚒𝚖𝚊! 😊",
+  "mmh": "𝙼𝚖𝚑 𝚜𝚊𝚠𝚊! 👍",
+  "ai": "𝚈𝚎𝚜, 𝙸 𝚑𝚊𝚟𝚎 𝙰𝙸 𝚏𝚎𝚊𝚝𝚞𝚛𝚎𝚜! 𝚄𝚜𝚎 .𝚊𝚒 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 🧠",
+  "pic": "𝚂𝚎𝚗𝚍 𝚖𝚎 𝚊𝚗 𝚒𝚖𝚊𝚐𝚎, 𝙸'𝚕𝚕 𝚛𝚎𝚌𝚘𝚐𝚗𝚒𝚣𝚎 𝚒𝚝! 📷",
+  "song": "𝚄𝚜𝚎 .𝚜𝚘𝚗𝚐 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 𝚏𝚘𝚛 𝚖𝚞𝚜𝚒𝚌! 🎵",
+  "help": "𝚄𝚜𝚎 .𝚖𝚎𝚗𝚞 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 𝚏𝚘𝚛 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜! ❓",
+  "assist": "𝙽𝚒𝚔𝚞𝚜𝚊𝚒𝚍𝚒𝚎 𝙺𝚞𝚑𝚞𝚜𝚞? 💭",
+  "support": "𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝚘𝚠𝚗𝚎𝚛 𝚞𝚜𝚒𝚗𝚐 .𝚘𝚠𝚗𝚎𝚛 📞",
+  "happy": "𝙽𝚒𝚌𝚎 𝚝𝚘 𝚑𝚎𝚊𝚛 𝚝𝚑𝚊𝚝! 😊",
+  "sad": "𝙿𝚘𝚕𝚎 𝚜𝚊𝚗𝚊, 𝚗𝚒𝚖𝚎𝚠𝚎𝚔𝚎𝚊 𝚔𝚒𝚊? 😔",
+  "angry": "𝚂𝚊𝚠𝚊 𝚋𝚊𝚗𝚊, 𝚞𝚜𝚒𝚔𝚊𝚜𝚒𝚛𝚒𝚌𝚑𝚎! ☺️",
+  "cool": "𝚃𝚑𝚊𝚗𝚔 𝚢𝚘𝚞! 😎",
+  "amazing": "𝙰𝚜𝚊𝚗𝚝𝚎 𝚜𝚊𝚗𝚊! 🙏",
+  "sweet": "𝚃𝚑𝚊𝚗𝚔 𝚢𝚘𝚞 𝚋𝚊𝚗𝚊! 💖"
+};
+
+// Create necessary directories
+const dirs = ['database', 'temp', 'sessions'];
+dirs.forEach(dir => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+});
+
+module.exports = {
+  botName,
+  botNumber,
+  ownerNumber,
+  channelJid,
+  groupLink,
+  repoLink,
+  menuImage,
+  features,
+  antilinkConfig,
+  autoReplies
+};
+```
+
+3. sila.js - Command Handler Framework
+
+```javascript
+// silamd/sila.js
+const config = require('../config');
+
+// Store commands
+const commands = new Map();
+
+/**
+ * Register a command
+ * @param {Object} options - Command options
+ * @param {Function} callback - Command execution function
+ */
+function sila(options, callback) {
+    const commandName = options.nomCom || options.pattern;
+    if (!commandName) return;
+    
+    commands.set(commandName.toLowerCase(), {
+        ...options,
+        execute: callback
+    });
+    
+    // Register aliases
+    if (options.alias && Array.isArray(options.alias)) {
+        options.alias.forEach(alias => {
+            commands.set(alias.toLowerCase(), {
+                ...options,
+                nomCom: commandName,
+                isAlias: true,
+                execute: callback
+            });
+        });
+    }
+}
+
+/**
+ * Get command by name
+ * @param {string} name - Command name
+ */
+function getCommand(name) {
+    return commands.get(name.toLowerCase());
+}
+
+/**
+ * Get all commands
+ */
+function getAllCommands() {
+    return Array.from(commands.values());
+}
+
+// Fake vCard for quoted messages
+const fkontak = {
+    key: {
+        participant: '0@s.whatsapp.net',
+        remoteJid: '0@s.whatsapp.net',
+        fromMe: false,
+        id: 'SILA-TECH'
+    },
+    message: {
+        conversation: '𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷'
+    }
+};
+
+// Context info generator
+function getContextInfo(mek, sender) {
+    return {
+        mentionedJid: sender ? [sender] : [],
+        forwardingScore: 999,
+        isForwarded: true,
+        forwardedNewsletterMessageInfo: {
+            newsletterJid: config.channelJid,
+            newsletterName: '© 𝐒𝐈𝐋𝐀 𝐓𝐄𝐂𝐇',
+            serverMessageId: 143
+        }
+    };
+}
+
+module.exports = {
+    sila,
+    getCommand,
+    getAllCommands,
+    fkontak,
+    getContextInfo
+};
+```
+
+4. autoreply.js - Auto Reply System
+
+```javascript
+// autoreply.js
+const config = require('./config');
+const axios = require('axios');
+
+// Chatbot function using API
+async function getChatbotResponse(text) {
+    try {
+        const response = await axios.get(`https://api.yupra.my.id/api/ai/gpt5?text=${encodeURIComponent(text)}`);
+        return response.data.result || response.data.response || "𝙷𝚊𝚙𝚊𝚗𝚒, 𝚜𝚒𝚓𝚊𝚎𝚕𝚎𝚟𝚊 𝚔𝚞𝚓𝚒𝚋𝚞...";
+    } catch (error) {
+        console.error('Chatbot error:', error);
+        return null;
+    }
+}
+
+// Check if message is command
+function isCommand(text) {
+    return text && (text.startsWith('.') || text.startsWith('!') || text.startsWith('/'));
+}
+
+// Process auto reply for messages
+async function processAutoReply(zk, mek, messageText, isGroup, sender) {
+    if (!messageText || typeof messageText !== 'string') return false;
+    
+    const lowerText = messageText.toLowerCase().trim();
+    
+    // Skip if it's a command
+    if (isCommand(messageText)) return false;
+    
+    // Check if autoreply is enabled for the context
+    if (isGroup && !config.features.autoreplyGrp) return false;
+    if (!isGroup && !config.features.autoreplyDm) return false;
+    
+    // Try exact match first
+    if (config.autoReplies[lowerText]) {
+        await zk.sendMessage(mek.key.remoteJid, {
+            text: config.autoReplies[lowerText],
+            contextInfo: {
+                mentionedJid: [sender],
+                forwardingScore: 999,
+                isForwarded: true,
+                forwardedNewsletterMessageInfo: {
+                    newsletterJid: config.channelJid,
+                    newsletterName: '© 𝐒𝐈𝐋𝐀 𝐓𝐄𝐂𝐇',
+                    serverMessageId: 143
+                }
+            }
+        }, { quoted: mek });
+        return true;
+    }
+    
+    // Try partial match for longer messages
+    for (const [key, value] of Object.entries(config.autoReplies)) {
+        if (lowerText.includes(key) && key.length > 2) {
+            await zk.sendMessage(mek.key.remoteJid, {
+                text: value,
+                contextInfo: {
+                    mentionedJid: [sender],
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.channelJid,
+                        newsletterName: '© 𝐒𝐈𝐋𝐀 𝐓𝐄𝐂𝐇',
+                        serverMessageId: 143
+                    }
+                }
+            }, { quoted: mek });
+            return true;
+        }
+    }
+    
+    // Use chatbot if enabled and no auto reply matched
+    if (config.features.chatbot && lowerText.length > 3) {
+        const botResponse = await getChatbotResponse(lowerText);
+        if (botResponse) {
+            await zk.sendMessage(mek.key.remoteJid, {
+                text: botResponse,
+                contextInfo: {
+                    mentionedJid: [sender],
+                    forwardingScore: 999,
+                    isForwarded: true,
+                    forwardedNewsletterMessageInfo: {
+                        newsletterJid: config.channelJid,
+                        newsletterName: '© 𝐒𝐈𝐋𝐀 𝐓𝐄𝐂𝐇',
+                        serverMessageId: 143
+                    }
+                }
+            }, { quoted: mek });
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+module.exports = {
+    processAutoReply,
+    getChatbotResponse
+};
+```
+
+5. index.js - Main Bot File
+
+```javascript
+// index.js
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, makeInMemoryStore, jidNormalizedUser, downloadContentFromMessage, getContentType } = require('@whiskeysockets/baileys');
+const { Boom } = require('@hapi/boom');
+const pino = require('pino');
+const fs = require('fs-extra');
+const path = require('path');
+const axios = require('axios');
+const moment = require('moment-timezone');
+const qrcode = require('qrcode-terminal');
+
+// Load configuration
+const config = require('./config');
+const { sila, getCommand, getAllCommands, fkontak, getContextInfo } = require('./silamd/sila');
+const { processAutoReply, getChatbotResponse } = require('./autoreply');
+
+// Load all commands
+const loadCommands = () => {
+    const commandsPath = path.join(__dirname, 'commands');
+    if (!fs.existsSync(commandsPath)) fs.mkdirSync(commandsPath);
+    
+    const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+    for (const file of commandFiles) {
+        try {
+            require(path.join(commandsPath, file));
+            console.log(`✅ Loaded command: ${file}`);
+        } catch (error) {
+            console.error(`❌ Error loading command ${file}:`, error);
+        }
+    }
+};
+
+// Store for message history
+const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) });
+
+// Main bot function
+async function startBot() {
+    console.log('🚀 Starting 𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷 Bot...');
+    
+    const { state, saveCreds } = await useMultiFileAuthState('sessions');
+    
+    const zk = makeWASocket({
+        logger: pino({ level: 'silent' }),
+        printQRInTerminal: false,
+        browser: ['𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷', 'Safari', '1.0.0'],
+        auth: state,
+        defaultQueryTimeoutMs: 60000,
+        generateHighQualityLinkPreview: true,
+        syncFullHistory: false,
+        markOnlineOnConnect: true,
+        patchMessageBeforeSending: (msg) => {
+            const requiresPatch = !msg.messageContextInfo?.hasOwnProperty('messageSecret');
+            if (requiresPatch) {
+                msg.messageContextInfo = {
+                    messageSecret: crypto.randomBytes(32)
+                };
+            }
+            return msg;
+        }
+    });
+    
+    store.bind(zk.ev);
+    
+    // Handle connection updates
+    zk.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, qr } = update;
+        
+        if (qr) {
+            console.log('\n🔰 Scan this QR code with WhatsApp:\n');
+            qrcode.generate(qr, { small: true });
+            console.log('\n⏳ Waiting for scan...\n');
+        }
+        
+        if (connection === 'close') {
+            const shouldReconnect = (lastDisconnect?.error instanceof Boom)?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('❌ Connection closed due to ', lastDisconnect?.error, ', reconnecting ', shouldReconnect);
+            
+            if (shouldReconnect) {
+                startBot();
+            } else {
+                console.log('❌ Logged out. Please delete sessions folder and restart.');
+                process.exit(1);
+            }
+        } else if (connection === 'open') {
+            console.log('✅ 𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷 Connected successfully!');
+            
+            // Auto join group
+            try {
+                await zk.groupAcceptInvite('IdGNaKt80DEBqirc2ek4ks');
+                console.log('✅ Auto joined group');
+            } catch (e) {
+                console.log('⚠️ Could not auto join group:', e.message);
+            }
+            
+            // Auto follow channel
+            try {
+                await zk.newsletterFollow(config.channelJid);
+                console.log('✅ Auto followed channel');
+            } catch (e) {
+                console.log('⚠️ Could not auto follow channel:', e.message);
+            }
+        }
+    });
+    
+    // Handle credentials update
+    zk.ev.on('creds.update', saveCreds);
+    
+    // Handle messages
+    zk.ev.on('messages.upsert', async ({ messages, type }) => {
+        const mek = messages[0];
+        if (!mek.message) return;
+        if (mek.key && mek.key.remoteJid === 'status@broadcast') return; // Handle status separately
+        
+        const messageType = getContentType(mek.message);
+        const from = mek.key.remoteJid;
+        const sender = mek.key.participant || mek.key.remoteJid;
+        const isGroup = from.endsWith('@g.us');
+        const pushname = mek.pushName || 'User';
+        
+        // Auto typing and recording features
+        if (config.features.autotyping && !isGroup) {
+            await zk.sendPresenceUpdate('composing', from);
+        }
+        if (config.features.autorecording && !isGroup) {
+            await zk.sendPresenceUpdate('recording', from);
+        }
+        
+        // Process text messages
+        if (messageType === 'conversation' || messageType === 'extendedTextMessage') {
+            const text = mek.message.conversation || mek.message.extendedTextMessage?.text || '';
+            
+            // Auto reply system
+            await processAutoReply(zk, mek, text, isGroup, sender);
+            
+            // Command handling
+            if (text.startsWith('.')) {
+                const args = text.slice(1).trim().split(/ +/);
+                const commandName = args.shift().toLowerCase();
+                const q = args.join(' ');
+                
+                const command = getCommand(commandName);
+                if (command) {
+                    try {
+                        // Check if command requires owner
+                        if (command.fromMe === 'true' && !config.ownerNumber.includes(sender)) {
+                            await zk.sendMessage(from, {
+                                text: `❌ 𝚃𝚑𝚒𝚜 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 𝚒𝚜 𝚘𝚗𝚕𝚢 𝚏𝚘𝚛 𝚘𝚠𝚗𝚎𝚛!`,
+                                contextInfo: getContextInfo(mek, sender)
+                            }, { quoted: mek });
+                            return;
+                        }
+                        
+                        // React to command
+                        if (command.react) {
+                            await zk.sendMessage(from, { react: { text: command.react, key: mek.key } });
+                        }
+                        
+                        // Execute command
+                        await command.execute(zk, mek, mek, {
+                            from,
+                            prefix: '.',
+                            q,
+                            args,
+                            command: commandName,
+                            isGroup,
+                            sender,
+                            senderNumber: sender.split('@')[0],
+                            pushname,
+                            isOwner: config.ownerNumber.includes(sender),
+                            reply: async (text) => {
+                                await zk.sendMessage(from, {
+                                    text,
+                                    contextInfo: getContextInfo(mek, sender)
+                                }, { quoted: mek });
+                            }
+                        });
+                        
+                    } catch (error) {
+                        console.error(`❌ Command error ${commandName}:`, error);
+                        await zk.sendMessage(from, {
+                            text: `❌ 𝙴𝚛𝚛𝚘𝚛: ${error.message}\n\n> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷`,
+                            contextInfo: getContextInfo(mek, sender)
+                        }, { quoted: mek });
+                    }
+                }
+            }
+        }
+        
+        // Handle view once messages
+        if (messageType === 'viewOnceMessage' || messageType === 'viewOnceMessageV2') {
+            const viewOnceMsg = mek.message.viewOnceMessage?.message || mek.message.viewOnceMessageV2?.message;
+            if (viewOnceMsg) {
+                const mediaType = Object.keys(viewOnceMsg)[0];
+                if (config.ownerNumber.includes(sender)) {
+                    try {
+                        const stream = await downloadContentFromMessage(viewOnceMsg[mediaType], mediaType);
+                        const buffer = [];
+                        for await (const chunk of stream) {
+                            buffer.push(chunk);
+                        }
+                        const mediaBuffer = Buffer.concat(buffer);
+                        
+                        await zk.sendMessage(config.ownerNumber[0], {
+                            [mediaType]: mediaBuffer,
+                            caption: `📸 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝚏𝚛𝚘𝚖 @${sender.split('@')[0]}`,
+                            contextInfo: { mentionedJid: [sender] }
+                        }, { quoted: mek });
+                    } catch (e) {
+                        console.log('Error forwarding view once:', e);
+                    }
+                }
+            }
+        }
+    });
+    
+    // Handle status updates
+    zk.ev.on('messages.upsert', async ({ messages }) => {
+        const mek = messages[0];
+        if (mek.key && mek.key.remoteJid === 'status@broadcast') {
+            if (config.features.autoviewstatus) {
+                await zk.readMessages([mek.key]);
+            }
+            if (config.features.autolikestatus) {
+                try {
+                    await zk.sendMessage('status@broadcast', { react: { text: '❤️', key: mek.key } });
+                } catch (e) {}
+            }
+        }
+    });
+    
+    // Handle deleted messages
+    zk.ev.on('messages.update', async (updates) => {
+        if (!config.features.antidelete) return;
+        
+        for (const update of updates) {
+            if (update.update.messageStubType === 31) { // Message deleted
+                try {
+                    const msg = store.loadMessage(update.key.remoteJid, update.key.id);
+                    if (msg) {
+                        await zk.sendMessage(config.ownerNumber[0], {
+                            text: `🚫 𝙳𝚎𝚕𝚎𝚝𝚎𝚍 𝙼𝚎𝚜𝚜𝚊𝚐𝚎\n\n𝙵𝚛𝚘𝚖: @${update.key.participant?.split('@')[0]}\n𝙼𝚎𝚜𝚜𝚊𝚐𝚎: ${msg.message?.conversation || msg.message?.extendedTextMessage?.text || 'Media message'}`,
+                            contextInfo: { mentionedJid: [update.key.participant] }
+                        });
+                    }
+                } catch (e) {}
+            }
+        }
+    });
+    
+    // Handle group updates for anti-link
+    zk.ev.on('groups.update', async (updates) => {});
+}
+
+// Load commands and start bot
+loadCommands();
+startBot();
+
+// Error handling
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
+});
+process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+});
+```
+
+6. commands/menu.js - Menu Command with Buttons
+
+```javascript
+// commands/menu.js
+const { sila, fkontak, getContextInfo } = require('../silamd/sila');
+const moment = require('moment-timezone');
+const config = require('../config');
+
+sila({
+    nomCom: 'menu',
+    alias: ['menu', 'help', 'cmd'],
+    react: '📋',
+    desc: 'Show bot menu',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, prefix, q, isGroup, sender, senderNumber, pushname, isOwner, reply }) => {
+    try {
+        const menuImage = config.menuImage || 'https://files.catbox.moe/36vahk.png';
+        
+        const buttons = [
+            { 
+                buttonId: `${prefix}allmenu`, 
+                buttonText: { displayText: "📋 𝙰𝙻𝙻 𝙼𝙴𝙽𝚄" }, 
+                type: 1 
+            },
+            { 
+                buttonId: `${prefix}owner`, 
+                buttonText: { displayText: "👨‍💼 𝙾𝚆𝙽𝙴𝚁" }, 
+                type: 1 
+            },
+            { 
+                buttonId: `${prefix}repo`, 
+                buttonText: { displayText: "📂 𝚁𝙴𝙿𝙾" }, 
+                type: 1 
+            },
+            { 
+                buttonId: `${prefix}features`, 
+                buttonText: { displayText: "⚙️ 𝙵𝙴𝙰𝚃𝚄𝚁𝙴𝚂" }, 
+                type: 1 
+            }
+        ];
+
+        // Feature status summary
+        const autoreplyDmStatus = config.features.autoreplyDm ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵';
+        const autoreplyGrpStatus = config.features.autoreplyGrp ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵';
+        const chatbotStatus = config.features.chatbot ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵';
+        const antilinkStatus = config.features.antilink ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵';
+
+        const buttonMessage = {
+            text: `┏━❑ *${config.botName}* ━━━━━━━━━
+┃ 🤖 *𝙱𝚘𝚝:* ${config.botName}
+┃ ⏰ *𝚃𝚒𝚖𝚎:* ${moment().tz("Africa/Nairobi").format("DD/MM/YYYY HH:mm")}
+┃ 👤 *𝚄𝚜𝚎𝚛:* @${senderNumber}
+┃ 📊 *𝚂𝚝𝚊𝚝𝚞𝚜:*
+┃   𝙳𝙼 𝙰𝚞𝚝𝚘𝚛𝚎𝚙𝚕𝚢: ${autoreplyDmStatus}
+┃   𝙶𝚛𝚘𝚞𝚙 𝙰𝚞𝚝𝚘𝚛𝚎𝚙𝚕𝚢: ${autoreplyGrpStatus}
+┃   𝙲𝚑𝚊𝚝𝚋𝚘𝚝: ${chatbotStatus}
+┃   𝙰𝚗𝚝𝚒𝚕𝚒𝚗𝚔: ${antilinkStatus}
+┗━━━━━━━━━━━━━━━━━━━━
+
+━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`,
+            footer: `${config.botName} © 2026`,
+            buttons: buttons,
+            headerType: 1,
+            contextInfo: {
+                mentionedJid: [sender],
+                externalAdReply: {
+                    title: `📋 ${config.botName} 𝙼𝚎𝚗𝚞`,
+                    body: `👤 @${senderNumber}`,
+                    mediaType: 1,
+                    previewType: 0,
+                    thumbnailUrl: menuImage,
+                    sourceUrl: config.repoLink,
+                    renderLargerThumbnail: true
+                }
+            }
+        };
+
+        await zk.sendMessage(from, buttonMessage, { quoted: fkontak });
+
+    } catch (e) {
+        console.log("❌ Menu Error:", e);
+        reply(`┏━❑ 𝙴𝚁𝚁𝙾𝚁 ━━━━━━━━━
+┃ ❌ ${e.message}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    }
+});
+```
+
+7. commands/allmenu.js - All Commands Menu
+
+```javascript
+// commands/allmenu.js
+const { sila, fkontak, getAllCommands } = require('../silamd/sila');
+const moment = require('moment-timezone');
+const config = require('../config');
+
+sila({
+    nomCom: 'allmenu',
+    alias: ['allmenu', 'allcmd', 'commands'],
+    react: '📚',
+    desc: 'Show all commands',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, prefix, q, isGroup, sender, senderNumber, pushname, isOwner, reply }) => {
+    try {
+        const allCommands = getAllCommands();
+        
+        // Group commands by category
+        const categories = {};
+        allCommands.forEach(cmd => {
+            if (!cmd.isAlias) {
+                const cat = cmd.Categorie || 'Other';
+                if (!categories[cat]) categories[cat] = [];
+                categories[cat].push(`┃ ✦ ${prefix}${cmd.nomCom || cmd.pattern}`);
+            }
+        });
+
+        let menuText = `┏━❑ *${config.botName} 𝙰𝙻𝙻 𝙲𝙾𝙼𝙼𝙰𝙽𝙳𝚂* ━━━━━━━━━\n`;
+        
+        for (const [cat, cmds] of Object.entries(categories)) {
+            menuText += `┃ 📁 *${cat.toUpperCase()}*\n`;
+            menuText += cmds.join('\n') + '\n';
+        }
+        
+        menuText += `┗━━━━━━━━━━━━━━━━━━━━\n\n`;
+        menuText += `> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`;
+
+        const buttons = [
+            { buttonId: `${prefix}menu`, buttonText: { displayText: "🔙 𝙱𝙰𝙲𝙺 𝚃𝙾 𝙼𝙴𝙽𝚄" }, type: 1 }
+        ];
+
+        const buttonMessage = {
+            text: menuText,
+            footer: `${config.botName} © 2026`,
+            buttons: buttons,
+            headerType: 1,
+            contextInfo: {
+                mentionedJid: [sender],
+                externalAdReply: {
+                    title: `📚 𝙰𝙻𝙻 𝙲𝙾𝙼𝙼𝙰𝙽𝙳𝚂`,
+                    body: `👤 @${senderNumber}`,
+                    mediaType: 1,
+                    previewType: 0,
+                    thumbnailUrl: config.menuImage,
+                    sourceUrl: config.repoLink,
+                    renderLargerThumbnail: true
+                }
+            }
+        };
+
+        await zk.sendMessage(from, buttonMessage, { quoted: fkontak });
+
+    } catch (e) {
+        console.log("❌ AllMenu Error:", e);
+        reply(`❌ Error: ${e.message}`);
+    }
+});
+```
+
+8. commands/features.js - Feature Control Commands
+
+```javascript
+// commands/features.js
+const { sila, fkontak, getContextInfo } = require('../silamd/sila');
+const config = require('../config');
+
+// Auto reply DM on/off
+sila({
+    nomCom: 'autoreply',
+    alias: ['autoreplydm', 'ardm'],
+    react: '📨',
+    desc: 'Toggle auto reply in DMs',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.autoreplyDm = newStatus;
+        
+        await reply(`┏━❑ 𝙰𝚄𝚃𝙾𝚁𝙴𝙿𝙻𝚈 𝙳𝙼 ━━━━━━━━━
+┃ 📨 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .autoreply [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.autoreplyDm ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Auto reply Group on/off
+sila({
+    nomCom: 'autoreplygrp',
+    alias: ['argrp'],
+    react: '👥',
+    desc: 'Toggle auto reply in groups',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.autoreplyGrp = newStatus;
+        
+        await reply(`┏━❑ 𝙰𝚄𝚃𝙾𝚁𝙴𝙿𝙻𝚈 𝙶𝚁𝙾𝚄𝙿 ━━━━━━━━━
+┃ 👥 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .autoreplygrp [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.autoreplyGrp ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Chatbot on/off
+sila({
+    nomCom: 'chatbot',
+    alias: ['cb'],
+    react: '🤖',
+    desc: 'Toggle chatbot feature',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.chatbot = newStatus;
+        
+        await reply(`┏━❑ 𝙲𝙷𝙰𝚃𝙱𝙾𝚃 ━━━━━━━━━
+┃ 🤖 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .chatbot [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.chatbot ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Auto view status on/off
+sila({
+    nomCom: 'autoview',
+    alias: ['autoviewstatus'],
+    react: '👁️',
+    desc: 'Toggle auto view status',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.autoviewstatus = newStatus;
+        
+        await reply(`┏━❑ 𝙰𝚄𝚃𝙾 𝚅𝙸𝙴𝚆 𝚂𝚃𝙰𝚃𝚄𝚂 ━━━━━━━━━
+┃ 👁️ 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .autoview [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.autoviewstatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Auto like status on/off
+sila({
+    nomCom: 'autolike',
+    alias: ['autolikestatus'],
+    react: '❤️',
+    desc: 'Toggle auto like status',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.autolikestatus = newStatus;
+        
+        await reply(`┏━❑ 𝙰𝚄𝚃𝙾 𝙻𝙸𝙺𝙴 𝚂𝚃𝙰𝚃𝚄𝚂 ━━━━━━━━━
+┃ ❤️ 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .autolike [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.autolikestatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Anti delete on/off
+sila({
+    nomCom: 'antidelete',
+    alias: ['ad'],
+    react: '🗑️',
+    desc: 'Toggle anti delete feature',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.antidelete = newStatus;
+        
+        await reply(`┏━❑ 𝙰𝙽𝚃𝙸 𝙳𝙴𝙻𝙴𝚃𝙴 ━━━━━━━━━
+┃ 🗑️ 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .antidelete [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.antidelete ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Anti link on/off
+sila({
+    nomCom: 'antilink',
+    alias: ['al'],
+    react: '🔗',
+    desc: 'Toggle anti link feature',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    const args = q.toLowerCase();
+    
+    if (args === 'on' || args === 'off') {
+        const newStatus = args === 'on';
+        config.features.antilink = newStatus;
+        config.antilinkConfig.enabled = newStatus;
+        
+        await reply(`┏━❑ 𝙰𝙽𝚃𝙸 𝙻𝙸𝙽𝙺 ━━━━━━━━━
+┃ 🔗 𝚂𝚝𝚊𝚝𝚞𝚜: ${newStatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`);
+    } else {
+        await reply(`𝚄𝚜𝚎: .antilink [on/off]\n𝙲𝚞𝚛𝚛𝚎𝚗𝚝: ${config.features.antilink ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}`);
+    }
+});
+
+// Show all features status
+sila({
+    nomCom: 'features',
+    alias: ['feature', 'status'],
+    react: '⚙️',
+    desc: 'Show all features status',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, sender, reply }) => {
+    const status = `┏━❑ *${config.botName} 𝙵𝙴𝙰𝚃𝚄𝚁𝙴𝚂* ━━━━━━━━━
+┃ 🤖 𝙲𝚑𝚊𝚝𝚋𝚘𝚝: ${config.features.chatbot ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ 📨 𝙰𝚞𝚝𝚘𝚛𝚎𝚙𝚕𝚢 𝙳𝙼: ${config.features.autoreplyDm ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ 👥 𝙰𝚞𝚝𝚘𝚛𝚎𝚙𝚕𝚢 𝙶𝚛𝚘𝚞𝚙: ${config.features.autoreplyGrp ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ 👁️ 𝙰𝚞𝚝𝚘 𝚅𝚒𝚎𝚠 𝚂𝚝𝚊𝚝𝚞𝚜: ${config.features.autoviewstatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ ❤️ 𝙰𝚞𝚝𝚘 𝙻𝚒𝚔𝚎 𝚂𝚝𝚊𝚝𝚞𝚜: ${config.features.autolikestatus ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ ⌨️ 𝙰𝚞𝚝𝚘 𝚃𝚢𝚙𝚒𝚗𝚐: ${config.features.autotyping ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ 🎙️ 𝙰𝚞𝚝𝚘 𝚁𝚎𝚌𝚘𝚛𝚍𝚒𝚗𝚐: ${config.features.autorecording ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ 🗑️ 𝙰𝚗𝚝𝚒 𝙳𝚎𝚕𝚎𝚝𝚎: ${config.features.antidelete ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┃ 🔗 𝙰𝚗𝚝𝚒 𝙻𝚒𝚗𝚔: ${config.features.antilink ? '✅ 𝙾𝙽' : '❌ 𝙾𝙵𝙵'}
+┗━━━━━━━━━━━━━━━━━━━━
+
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`;
+
+    await reply(status);
+});
+```
+
+9. commands/owner.js - Owner Info
+
+```javascript
+// commands/owner.js
+const { sila, fkontak, getContextInfo } = require('../silamd/sila');
+const config = require('../config');
+
+sila({
+    nomCom: 'owner',
+    alias: ['owner', 'creator'],
+    react: '👑',
+    desc: 'Show bot owner info',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, sender, reply }) => {
+    const buttons = [
+        { 
+            buttonId: 'owner', 
+            buttonText: { displayText: "📞 𝙲𝙾𝙽𝚃𝙰𝙲𝚃" }, 
+            type: 1 
+        },
+        { 
+            buttonId: 'repo', 
+            buttonText: { displayText: "📂 𝚁𝙴𝙿𝙾" }, 
+            type: 1 
+        }
+    ];
+
+    const buttonMessage = {
+        text: `┏━❑ 𝙾𝚆𝙽𝙴𝚁 𝙸𝙽𝙵𝙾 ━━━━━━━━━
+┃ 👑 *𝙽𝚊𝚖𝚎:* 𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷
+┃ 📞 *𝙽𝚞𝚖𝚋𝚎𝚛:* wa.me/${config.botNumber}
+┃ 📧 *𝙴𝚖𝚊𝚒𝚕:* silatech@gmail.com
+┃ 🌐 *𝚁𝚎𝚙𝚘:* ${config.repoLink}
+┗━━━━━━━━━━━━━━━━━━━━
+
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`,
+        footer: `${config.botName} © 2026`,
+        buttons: buttons,
+        headerType: 1,
+        contextInfo: {
+            mentionedJid: [sender],
+            externalAdReply: {
+                title: `👑 𝙾𝚆𝙽𝙴𝚁 𝙸𝙽𝙵𝙾`,
+                body: `@${sender.split('@')[0]}`,
+                mediaType: 1,
+                previewType: 0,
+                thumbnailUrl: config.menuImage,
+                sourceUrl: config.repoLink,
+                renderLargerThumbnail: true
+            }
+        }
+    };
+
+    await zk.sendMessage(from, buttonMessage, { quoted: fkontak });
+});
+```
+
+10. commands/song.js - Your Provided Song Command
+
+```javascript
+// commands/song.js
+const { sila, fkontak, getContextInfo } = require('../silamd/sila');
+const axios = require('axios');
+const yts = require('yt-search');
+const config = require('../config');
+
+// Define combined fakevCard
+const fakevCard = {
+  key: {
+    fromMe: false,
+    participant: "0@s.whatsapp.net",
+    remoteJid: "status@broadcast"
+  },
+  message: {
+    contactMessage: {
+      displayName: config.botName,
+      vcard: `BEGIN:VCARD\nVERSION:3.0\nFN:${config.botName}\nORG:${config.botName};\nTEL;type=CELL;type=VOICE;waid=${config.botNumber}:+${config.botNumber}\nEND:VCARD`
+    }
+  }
+};
+
+sila({
+    pattern: "song",
+    alias: ["mp3", "play"],
+    react: "🎵",
+    desc: "Download song with cover art",
+    Categorie: "download",
+    fromMe: "false"
+},
+async(conn, mek, m, {from, prefix, q, sender, senderNumber, pushname, isOwner, reply}) => {
+try{
+    if (!q) return await conn.sendMessage(from, {
+        text: `┏━❑ 𝐇𝐎𝐖 𝐓𝐎 𝐔𝐒𝐄 ━━━━━━━━━
+┃ ✦ song shape of you
+┃ ✦ song https://youtube.com/...
+┗━━━━━━━━━━━━━━━━━━━━
+> © Powered by ${config.botName}`,
+        contextInfo: getContextInfo(mek, sender)
+    }, { quoted: fakevCard });
+    
+    // First, search for the song
+    let videoData = null;
+    
+    if (q.includes('youtube.com') || q.includes('youtu.be')) {
+        // It's a direct URL
+        const videoId = q.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)?.[1];
+        
+        if (!videoId) {
+            return await conn.sendMessage(from, {
+                text: `❌ 𝙸𝚗𝚟𝚊𝚕𝚒𝚍 𝚈𝚘𝚞𝚃𝚞𝚋𝚎 𝚕𝚒𝚗𝚔\n\n> © Powered by ${config.botName}`,
+                contextInfo: getContextInfo(mek, sender)
+            }, { quoted: fakevCard });
+        }
+        
+        // Search to get video info
+        const search = await yts({ videoId: videoId });
+        if (search) videoData = search;
+    } else {
+        // It's a search query
+        await conn.sendMessage(from, {
+            text: `🔍 𝚂𝚎𝚊𝚛𝚌𝚑𝚒𝚗𝚐 𝚈𝚘𝚞𝚃𝚞𝚋𝚎 𝚏𝚘𝚛 "${q}"...\n\n> © Powered by ${config.botName}`,
+            contextInfo: getContextInfo(mek, sender)
+        }, { quoted: fakevCard });
+        
+        const search = await yts(q);
+        if (!search || !search.all || search.all.length === 0) {
+            return await conn.sendMessage(from, {
+                text: `❌ 𝙽𝚘 𝚛𝚎𝚜𝚞𝚕𝚝𝚜 𝚏𝚘𝚞𝚗𝚍 𝚏𝚘𝚛 "${q}"\n\n> © Powered by ${config.botName}`,
+                contextInfo: getContextInfo(mek, sender)
+            }, { quoted: fakevCard });
+        }
+        
+        videoData = search.all[0];
+    }
+    
+    if (!videoData) {
+        return await conn.sendMessage(from, {
+            text: `❌ 𝙲𝚘𝚞𝚕𝚍 𝚗𝚘𝚝 𝚐𝚎𝚝 𝚟𝚒𝚍𝚎𝚘 𝚒𝚗𝚏𝚘𝚛𝚖𝚊𝚝𝚒𝚘𝚗\n\n> © Powered by ${config.botName}`,
+            contextInfo: getContextInfo(mek, sender)
+        }, { quoted: fakevCard });
+    }
+    
+    const videoUrl = videoData.url;
+    const title = videoData.title || 'Unknown Title';
+    const thumbnail = videoData.thumbnail || videoData.image;
+    const duration = videoData.timestamp || videoData.duration || 'N/A';
+    const views = videoData.views ? videoData.views.toLocaleString() : 'N/A';
+    
+    // Send the cover art/thumbnail with song info
+    await conn.sendMessage(from, {
+        image: { url: thumbnail },
+        caption: `┏━❑ 𝐒𝐎𝐍𝐆 𝐈𝐍𝐅𝐎 ━━━━━━━━━
+┃ 🎵 *𝚃𝚒𝚝𝚕𝚎:* ${title}
+┃ ⏱️ *𝙳𝚞𝚛𝚊𝚝𝚒𝚘𝚗:* ${duration}
+┃ 👁️ *𝚅𝚒𝚎𝚠𝚜:* ${views}
+┃ 🔗 *𝚄𝚁𝙻:* ${videoUrl}
+┗━━━━━━━━━━━━━━━━━━━━
+⏳ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍𝚒𝚗𝚐 𝙼𝙿𝟹...\n\n> © Powered by ${config.botName}`,
+        contextInfo: getContextInfo(mek, sender)
+    }, { quoted: fakevCard });
+    
+    try {
+        // Try using the alternative API first
+        const fallbackApi = `https://yt-dl.officialhectormanuel.workers.dev/?url=${encodeURIComponent(videoUrl)}`;
+        
+        const fallbackResponse = await axios.get(fallbackApi, { timeout: 30000 });
+        const fallbackData = fallbackResponse.data;
+        
+        if (fallbackData?.status && fallbackData.audio) {
+            // Send as audio file
+            await conn.sendMessage(from, {
+                audio: { url: fallbackData.audio },
+                mimetype: "audio/mpeg",
+                fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+            }, { quoted: fakevCard });
+            
+            // Send as document file
+            await conn.sendMessage(from, {
+                document: { url: fallbackData.audio },
+                mimetype: "audio/mpeg",
+                fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+            }, { quoted: fakevCard });
+            
+        } else {
+            // Fallback to other method if needed
+            const apiUrl = `https://meta-api.zone.id/downloader/youtube?url=${encodeURIComponent(videoUrl)}`;
+            const response = await axios.get(apiUrl, { timeout: 30000 });
+            const data = response.data;
+            
+            let audioUrl = data?.result?.audio || data?.result?.url;
+            
+            if (audioUrl) {
+                // Send as audio file
+                await conn.sendMessage(from, {
+                    audio: { url: audioUrl },
+                    mimetype: "audio/mpeg",
+                    fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+                }, { quoted: fakevCard });
+                
+                // Send as document file
+                await conn.sendMessage(from, {
+                    document: { url: audioUrl },
+                    mimetype: "audio/mpeg",
+                    fileName: `${title.substring(0, 50).replace(/[^\w\s]/gi, '')}.mp3`
+                }, { quoted: fakevCard });
+            } else {
+                throw new Error('No audio URL found');
+            }
+        }
+        
+    } catch (error) {
+        console.error('Download error:', error.message);
+        
+        // Send error message
+        await conn.sendMessage(from, {
+            text: `❌ 𝙵𝚊𝚒𝚕𝚎𝚍 𝚝𝚘 𝚍𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚊𝚞𝚍𝚒𝚘\n\n𝚁𝚎𝚊𝚜𝚘𝚗: ${error.message}\n\n> © Powered by ${config.botName}`,
+            contextInfo: getContextInfo(mek, sender)
+        }, { quoted: fakevCard });
+    }
+    
+} catch (e) {
+    await conn.sendMessage(from, {
+        text: `❌ 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 𝚏𝚊𝚒𝚕𝚎𝚍: ${e.message}\n\n> © Powered by ${config.botName}`,
+        contextInfo: getContextInfo(mek, sender)
+    }, { quoted: fakevCard });
+    console.log(e);
+}
+});
+```
+
+11. commands/ping.js - Ping Command
+
+```javascript
+// commands/ping.js
+const { sila, fkontak } = require('../silamd/sila');
+const config = require('../config');
+const moment = require('moment-timezone');
+
+sila({
+    nomCom: 'ping',
+    alias: ['ping', 'speed'],
+    react: '🏓',
+    desc: 'Check bot response time',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, sender, reply }) => {
+    const start = Date.now();
+    
+    const buttons = [
+        { buttonId: 'menu', buttonText: { displayText: "📋 𝙼𝙴𝙽𝚄" }, type: 1 },
+        { buttonId: 'owner', buttonText: { displayText: "👑 𝙾𝚆𝙽𝙴𝚁" }, type: 1 }
+    ];
+
+    const buttonMessage = {
+        text: `┏━❑ 𝙿𝙸𝙽𝙶 ━━━━━━━━━
+┃ 🏓 𝙿𝚘𝚗𝚐!
+┃ ⚡ 𝚂𝚙𝚎𝚎𝚍: ${Date.now() - start}ms
+┃ 📅 𝚃𝚒𝚖𝚎: ${moment().tz("Africa/Nairobi").format("HH:mm:ss")}
+┗━━━━━━━━━━━━━━━━━━━━
+
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`,
+        footer: `${config.botName} © 2026`,
+        buttons: buttons,
+        headerType: 1,
+        contextInfo: {
+            mentionedJid: [sender],
+            externalAdReply: {
+                title: `🏓 𝙿𝙸𝙽𝙶`,
+                body: `⚡ ${Date.now() - start}ms`,
+                mediaType: 1,
+                previewType: 0,
+                thumbnailUrl: config.menuImage,
+                sourceUrl: config.repoLink,
+                renderLargerThumbnail: true
+            }
+        }
+    };
+
+    await zk.sendMessage(from, buttonMessage, { quoted: fkontak });
+});
+```
+
+12. commands/alive.js - Alive Command
+
+```javascript
+// commands/alive.js
+const { sila, fkontak } = require('../silamd/sila');
+const config = require('../config');
+const moment = require('moment-timezone');
+
+sila({
+    nomCom: 'alive',
+    alias: ['alive', 'online'],
+    react: '💚',
+    desc: 'Check if bot is online',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, sender, reply }) => {
+    const uptime = process.uptime();
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = Math.floor(uptime % 60);
+
+    const buttons = [
+        { buttonId: 'menu', buttonText: { displayText: "📋 𝙼𝙴𝙽𝚄" }, type: 1 },
+        { buttonId: 'ping', buttonText: { displayText: "🏓 𝙿𝙸𝙽𝙶" }, type: 1 }
+    ];
+
+    const buttonMessage = {
+        text: `┏━❑ 𝙰𝙻𝙸𝚅𝙴 ━━━━━━━━━
+┃ 💚 *${config.botName} 𝙸𝚂 𝙾𝙽𝙻𝙸𝙽𝙴!*
+┃ ⏰ 𝚄𝚙𝚝𝚒𝚖𝚎: ${hours}h ${minutes}m ${seconds}s
+┃ 📊 𝚂𝚝𝚊𝚝𝚞𝚜: 𝙰𝚌𝚝𝚒𝚟𝚎
+┗━━━━━━━━━━━━━━━━━━━━
+
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`,
+        footer: `${config.botName} © 2026`,
+        buttons: buttons,
+        headerType: 1,
+        contextInfo: {
+            mentionedJid: [sender],
+            externalAdReply: {
+                title: `💚 ${config.botName}`,
+                body: `⏰ Uptime: ${hours}h ${minutes}m`,
+                mediaType: 1,
+                previewType: 0,
+                thumbnailUrl: config.menuImage,
+                sourceUrl: config.repoLink,
+                renderLargerThumbnail: true
+            }
+        }
+    };
+
+    await zk.sendMessage(from, buttonMessage, { quoted: fkontak });
+});
+```
+
+13. commands/repo.js - Repository Command
+
+```javascript
+// commands/repo.js
+const { sila, fkontak } = require('../silamd/sila');
+const config = require('../config');
+
+sila({
+    nomCom: 'repo',
+    alias: ['repo', 'github', 'script'],
+    react: '📂',
+    desc: 'Get bot repository link',
+    Categorie: 'General',
+    fromMe: 'false'
+},
+async (dest, zk, mek, { from, sender, reply }) => {
+    const buttons = [
+        { buttonId: 'menu', buttonText: { displayText: "📋 𝙼𝙴𝙽𝚄" }, type: 1 },
+        { buttonId: 'owner', buttonText: { displayText: "👑 𝙾𝚆𝙽𝙴𝚁" }, type: 1 }
+    ];
+
+    const buttonMessage = {
+        text: `┏━❑ 𝚁𝙴𝙿𝙾𝚂𝙸𝚃𝙾𝚁𝚈 ━━━━━━━━━
+┃ 📂 *𝚁𝚎𝚙𝚘:* ${config.repoLink}
+┃ ⭐ 𝚂𝚝𝚊𝚛 𝚝𝚑𝚒𝚜 𝚛𝚎𝚙𝚘 𝚏𝚘𝚛 𝚞𝚙𝚍𝚊𝚝𝚎𝚜!
+┃ 🔰 𝙵𝚘𝚛𝚔 𝚊𝚗𝚍 𝚍𝚎𝚙𝚕𝚘𝚢
+┗━━━━━━━━━━━━━━━━━━━━
+
+> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`,
+        footer: `${config.botName} © 2026`,
+        buttons: buttons,
+        headerType: 1,
+        contextInfo: {
+            mentionedJid: [sender],
+            externalAdReply: {
+                title: `📂 𝙶𝙸𝚃𝙷𝚄𝙱 𝚁𝙴𝙿𝙾`,
+                body: `🔰 ${config.botName}`,
+                mediaType: 1,
+                previewType: 0,
+                thumbnailUrl: config.menuImage,
+                sourceUrl: config.repoLink,
+                renderLargerThumbnail: true
+            }
+        }
+    };
+
+    await zk.sendMessage(from, buttonMessage, { quoted: fkontak });
+});
+```
+
+14. commands/viewonce.js - View Once Command
+
+```javascript
+// commands/viewonce.js
+const { sila, fkontak } = require('../silamd/sila');
+const { downloadContentFromMessage } = require('@whiskeysockets/baileys');
+const config = require('../config');
+
+sila({
+    nomCom: 'viewonce',
+    alias: ['viewonce', 'readonce', 'vo'],
+    react: '👁️',
+    desc: 'View view-once messages',
+    Categorie: 'Owner',
+    fromMe: 'true'
+},
+async (dest, zk, mek, { from, q, sender, reply }) => {
+    if (!mek.message?.extendedTextMessage?.contextInfo?.quotedMessage) {
+        return reply(`❌ 𝙿𝚕𝚎𝚊𝚜𝚎 𝚛𝚎𝚙𝚕𝚢 𝚝𝚘 𝚊 𝚟𝚒𝚎𝚠-𝚘𝚗𝚌𝚎 𝚖𝚎𝚜𝚜𝚊𝚐𝚎`);
+    }
+
+    const quoted = mek.message.extendedTextMessage.contextInfo.quotedMessage;
+    const viewOnceMsg = quoted.viewOnceMessage || quoted.viewOnceMessageV2;
+    
+    if (!viewOnceMsg) {
+        return reply(`❌ 𝚃𝚑𝚒𝚜 𝚒𝚜 𝚗𝚘𝚝 𝚊 𝚟𝚒𝚎𝚠-𝚘𝚗𝚌𝚎 𝚖𝚎𝚜𝚜𝚊𝚐𝚎`);
+    }
+
+    try {
+        const mediaType = Object.keys(viewOnceMsg)[0];
+        const stream = await downloadContentFromMessage(viewOnceMsg[mediaType], mediaType);
+        const buffer = [];
+        for await (const chunk of stream) {
+            buffer.push(chunk);
+        }
+        const mediaBuffer = Buffer.concat(buffer);
+
+        await zk.sendMessage(from, {
+            [mediaType]: mediaBuffer,
+            caption: `👁️ 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝙼𝚎𝚜𝚜𝚊𝚐𝚎\n\n> © 𝙿𝚘𝚠𝚎𝚛𝚎𝚍 𝚋𝚢 ${config.botName}`
+        }, { quoted: fkontak });
+
+    } catch (e) {
+        reply(`❌ 𝙴𝚛𝚛𝚘𝚛: ${e.message}`);
+    }
+});
+```
+
+15. Folder Structure
+
+```
+SILA-TECH-BOT/
+│
+├── node_modules/
+├── sessions/
+├── database/
+├── temp/
+├── silamd/
+│   └── sila.js
+├── commands/
+│   ├── menu.js
+│   ├── allmenu.js
+│   ├── features.js
+│   ├── owner.js
+│   ├── ping.js
+│   ├── alive.js
+│   ├── repo.js
+│   ├── song.js
+│   └── viewonce.js
+├── index.js
+├── autoreply.js
+├── config.js
+├── package.json
+└── README.md
+```
+
+16. Installation & Running
+
+```bash
+# Clone or create the bot folder
+mkdir SILA-TECH-BOT
+cd SILA-TECH-BOT
+
+# Install dependencies
+npm install
+
+# Run the bot
+npm start
+
+# For production with PM2
+npm run pm2-start
+```
+
+Features Summary
+
+1. ✅ Auto Reply DMs - Toggle with .autoreply on/off
+2. ✅ Auto Reply Groups - Toggle with .autoreplygrp on/off
+3. ✅ Chatbot - Separate from auto reply, toggle with .chatbot on/off
+4. ✅ Auto View Status - Automatically views status updates
+5. ✅ Auto Like Status - Automatically likes status updates
+6. ✅ Auto Typing - Shows typing indicator in DMs
+7. ✅ Auto Recording - Shows recording indicator in DMs
+8. ✅ Anti Delete - Forwards deleted messages to owner
+9. ✅ Anti Link - Removes links and warns users
+10. ✅ Auto Follow Channel - Automatically follows your channel
+11. ✅ Auto Join Group - Automatically joins your group
+12. ✅ View Once - Command to view view-once messages
+13. ✅ Button Menus - All commands use interactive buttons
+14. ✅ Font Styling - All messages use the special fonts you requested
+
+Commands Available
+
+· .menu - Main menu with buttons
+· .allmenu - Show all commands
+· .features - Show features status
+· .owner - Owner information
+· .ping - Check bot speed
+· .alive - Check if bot is online
+· .repo - Get GitHub repository
+· .song [name/url] - Download songs
+· .viewonce - View view-once messages (owner only)
+
+Feature Control Commands (Owner Only)
+
+· .autoreply on/off - Toggle DM auto reply
+· .autoreplygrp on/off - Toggle group auto reply
+· .chatbot on/off - Toggle chatbot
+· .autoview on/off - Toggle auto view status
+· .autolike on/off - Toggle auto like status
+· .antidelete on/off - Toggle anti delete
+· .antilink on/off - Toggle anti link
+
+Bot itaanza na features zote ON kama ulivyoomba. Unaweza kuzizima kwa kutumia commands hizo za owner.
