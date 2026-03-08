@@ -1,2 +1,0 @@
-# backend/runtime.txt
-node-18.x
