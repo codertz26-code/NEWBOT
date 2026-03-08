@@ -1,3 +1,12 @@
+<script>
+    // Auto-detect environment
+    window.API_URL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:5000/api' 
+        : '/api';
+        
+    console.log('🌐 API URL:', window.API_URL);
+</script>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
