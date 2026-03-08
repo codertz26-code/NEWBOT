@@ -5,17 +5,11 @@
     "nodejs",
     "express",
     "mongodb",
-    "web-hosting",
-    "authentication",
-    "otp"
+    "web-hosting"
   ],
   "website": "https://sila-web-hosting.herokuapp.com",
   "repository": "https://github.com/sila-md/sila-web-hosting",
-  "logo": "https://i.ibb.co/your-logo.png",
   "success_url": "/",
-  "scripts": {
-    "postdeploy": "echo 'Deployment successful!'"
-  },
   "env": {
     "NODE_ENV": {
       "description": "Environment",
@@ -30,8 +24,8 @@
       "required": false
     },
     "EMAIL_USER": {
-      "description": "Gmail email address for OTP",
-      "required": false
+      "description": "Gmail email address",
+      "value": "silatrix22@gmail.com"
     },
     "EMAIL_PASS": {
       "description": "Gmail app password",
@@ -42,22 +36,9 @@
       "value": "https://sila-web-hosting.herokuapp.com"
     }
   },
-  "formation": {
-    "web": {
-      "quantity": 1,
-      "size": "eco"
-    }
-  },
   "buildpacks": [
     {
       "url": "heroku/nodejs"
     }
-  ],
-  "environments": {
-    "test": {
-      "scripts": {
-        "test": "echo 'No tests yet'"
-      }
-    }
-  }
+  ]
 }
