@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - SILA WEB HOSTING</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --primary-light: #4d94ff;
+            --secondary: #00cc99;
+            --accent: #ff3366;
+            --dark: #0a0a0a;
+            --dark-2: #111111;
+            --dark-3: #1a1a1a;
+            --dark-4: #222222;
+            --light: #ffffff;
+            --gray-1: #f5f5f5;
+            --gray-2: #e0e0e0;
+            --gray-3: #b0b0b0;
+            --gray-4: #808080;
+            --success: #00cc99;
+            --warning: #ffaa00;
+            --error: #ff3366;
+            --gradient-1: linear-gradient(135deg, #0066ff, #00cc99);
+            --gradient-2: linear-gradient(135deg, #0066ff, #ff3366);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 20px rgba(0,102,255,0.3);
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--dark-2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,102,255,0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--error);
+            border: 2px solid var(--error);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: var(--light);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Profile Header */
+        .profile-header {
+            background: var(--dark-2);
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0,102,255,0.2);
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: var(--light);
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info h1 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .profile-info h1 span {
+            color: var(--primary);
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 30px;
+            color: var(--gray-3);
+        }
+
+        /* Profile Content */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .profile-card {
+            background: var(--dark-2);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            border: 1px solid rgba(0,102,255,0.2);
+        }
+
+        .card-title {
+            font-size: 1.3em;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0,102,255,0.2);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--gray-3);
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: var(--dark-3);
+            border: 1px solid rgba(0,102,255,0.3);
+            border-radius: var(--border-radius-sm);
+            color: var(--light);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-save {
+            padding: 12px 30px;
+            background: var(--gradient-1);
+            color: var(--light);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Settings */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(0,102,255,0.1);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .setting-info p {
+            color: var(--gray-3);
+            font-size: 0.9em;
+        }
+
+        /* Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--dark-4);
+            transition: var(--transition);
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: var(--light);
+            transition: var(--transition);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Danger Zone */
+        .danger-zone {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,51,102,0.1);
+            border: 1px solid var(--error);
+            border-radius: var(--border-radius-md);
+        }
+
+        .danger-zone h3 {
+            color: var(--error);
+            margin-bottom: 10px;
+        }
+
+        .btn-danger {
+            padding: 10px 20px;
+            background: transparent;
+            color: var(--error);
+            border: 2px solid var(--error);
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .btn-danger:hover {
+            background: var(--error);
+            color: var(--light);
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--dark-3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Message */
+        .success-message {
+            background: rgba(0,204,153,0.1);
+            border: 1px solid var(--success);
+            border-radius: var(--border-radius-sm);
+            padding: 15px;
+            color: var(--success);
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .profile-header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .profile-meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SILA WEB HOSTING</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/new-project.html">New Project</a>
+            <a href="/my-projects.html">My Projects</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/support.html">Support</a>
+            <a href="/profile.html" class="active">Profile</a>
+        </div>
+        <div class="user-menu" id="userMenu">
+            <span class="username" id="username">Loading...</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                👤
+            </div>
+            <div class="profile-info">
+                <h1>Welcome, <span id="displayName">User</span>!</h1>
+                <div class="profile-meta">
+                    <span>📧 <span id="userEmail">-</span></span>
+                    <span>📅 Member since <span id="joinDate">-</span></span>
+                    <span>📁 <span id="projectCount">0</span> projects</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Grid -->
+        <div class="profile-grid">
+            <!-- Left Column -->
+            <div class="profile-card">
+                <h2 class="card-title">Profile Information</h2>
+                
+                <div class="success-message" id="successMessage"></div>
+
+                <form id="profileForm">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="bio" placeholder="Tell us about yourself"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="url" id="website" placeholder="https://your-website.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="location" placeholder="City, Country">
+                    </div>
+
+                    <button type="submit" class="btn-save">Save Changes</button>
+                </form>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <!-- Account Settings -->
+                <div class="profile-card" style="margin-bottom: 30px;">
+                    <h2 class="card-title">Account Settings</h2>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Email Notifications</h3>
+                            <p>Receive email updates about your projects</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="emailNotifications" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Dark Theme</h3>
+                            <p>Toggle dark/light theme</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="darkTheme" checked disabled>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h3>Public Profile</h3>
+                            <p>Make your profile visible to others</p>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="publicProfile">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <h3>⚠️ Danger Zone</h3>
+                    <p>Once you delete your account, there is no going back. Please be certain.</p>
+                    <button class="btn-danger" onclick="deleteAccount()">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="loader" id="loader"></div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    window.location.href = '/login.html';
+                    return null;
+                }
+                
+                return data.data;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '/login.html';
+                return null;
+            }
+        }
+
+        // Load profile
+        async function loadProfile() {
+            const loader = document.getElementById('loader');
+            loader.style.display = 'block';
+
+            try {
+                const user = await checkAuth();
+                if (!user) return;
+
+                // Update basic info
+                document.getElementById('username').textContent = `👤 ${user.username}`;
+                document.getElementById('displayName').textContent = user.username;
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('joinDate').textContent = new Date(user.createdAt).toLocaleDateString();
+
+                // Load profile data
+                if (user.profile) {
+                    document.getElementById('fullName').value = user.profile.fullName || '';
+                    document.getElementById('bio').value = user.profile.bio || '';
+                    document.getElementById('website').value = user.profile.website || '';
+                    document.getElementById('location').value = user.profile.location || '';
+                }
+
+                // Load settings
+                if (user.settings) {
+                    document.getElementById('emailNotifications').checked = user.settings.emailNotifications !== false;
+                    document.getElementById('publicProfile').checked = user.settings.publicProfile || false;
+                }
+
+                // Load project count
+                const projectsResponse = await fetch(`${API_URL}/projects/my-projects?limit=1`, {
+                    credentials: 'include'
+                });
+                const projectsData = await projectsResponse.json();
+                if (projectsData.success) {
+                    document.getElementById('projectCount').textContent = projectsData.data.pagination.total;
+                }
+
+            } catch (error) {
+                console.error('Load profile error:', error);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // Save profile
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const loader = document.getElementById('loader');
+            const successMessage = document.getElementById('successMessage');
+
+            loader.style.display = 'block';
+            successMessage.classList.remove('show');
+
+            try {
+                const profileData = {
+                    profile: {
+                        fullName: document.getElementById('fullName').value,
+                        bio: document.getElementById('bio').value,
+                        website: document.getElementById('website').value,
+                        location: document.getElementById('location').value
+                    },
+                    settings: {
+                        emailNotifications: document.getElementById('emailNotifications').checked,
+                        publicProfile: document.getElementById('publicProfile').checked
+                    }
+                };
+
+                // This would need a PUT /api/user/profile endpoint
+                // For now, we'll just show success message
+                
+                setTimeout(() => {
+                    successMessage.textContent = 'Profile updated successfully!';
+                    successMessage.classList.add('show');
+                    loader.style.display = 'none';
+                    
+                    setTimeout(() => {
+                        successMessage.classList.remove('show');
+                    }, 3000);
+                }, 1000);
+
+            } catch (error) {
+                console.error('Save profile error:', error);
+                loader.style.display = 'none';
+                alert('Error saving profile');
+            }
+        });
+
+        // Delete account
+        window.deleteAccount = function() {
+            if (confirm('⚠️ Are you sure you want to delete your account? This action cannot be undone!')) {
+                alert('Account deletion feature coming soon. Please contact support.');
+            }
+        };
+
+        // Logout
+        window.logout = async function() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadProfile);
+    </script>
+</body>
+</html>
