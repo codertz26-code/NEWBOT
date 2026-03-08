@@ -1,14 +1,25 @@
 {
-  "name": "sila-web-hosting-backend",
+  "name": "sila-web-hosting",
   "version": "2.0.0",
-  "description": "Premium Web Hosting Service with Authentication",
-  "main": "index.js",
+  "description": "Premium Web Hosting Service with OTP Authentication",
+  "main": "backend/index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node backend/index.js",
+    "dev": "nodemon backend/index.js",
+    "heroku-postbuild": "echo 'Build completed successfully'",
+    "postinstall": "cd backend && npm install"
   },
-  "keywords": ["web-hosting", "mongodb", "jwt", "otp", "authentication"],
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  },
+  "keywords": [
+    "web-hosting",
+    "mongodb",
+    "jwt",
+    "otp",
+    "heroku"
+  ],
   "author": "SILA MD",
   "license": "ISC",
   "dependencies": {
