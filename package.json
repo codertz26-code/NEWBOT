@@ -1,0 +1,13 @@
+{
+  "name": "sila-web-hosting",
+  "version": "2.0.0",
+  "description": "Premium Web Hosting Service",
+  "scripts": {
+    "start": "node backend/index.js",
+    "postinstall": "cd backend && npm install"
+  },
+  "engines": {
+    "node": "18.x",
+    "npm": "9.x"
+  }
+}
