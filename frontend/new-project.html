@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Project - SILA WEB HOSTING</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --primary-light: #4d94ff;
+            --secondary: #00cc99;
+            --accent: #ff3366;
+            --dark: #0a0a0a;
+            --dark-2: #111111;
+            --dark-3: #1a1a1a;
+            --dark-4: #222222;
+            --light: #ffffff;
+            --gray-1: #f5f5f5;
+            --gray-2: #e0e0e0;
+            --gray-3: #b0b0b0;
+            --gray-4: #808080;
+            --success: #00cc99;
+            --warning: #ffaa00;
+            --error: #ff3366;
+            --gradient-1: linear-gradient(135deg, #0066ff, #00cc99);
+            --gradient-2: linear-gradient(135deg, #0066ff, #ff3366);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 20px rgba(0,102,255,0.3);
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--dark-2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,102,255,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--error);
+            border: 2px solid var(--error);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: var(--light);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .page-header h1 span {
+            color: var(--primary);
+        }
+
+        .page-header p {
+            color: var(--gray-3);
+            font-size: 1.2em;
+        }
+
+        /* Upload Options */
+        .upload-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .option-card {
+            background: var(--dark-2);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            border: 1px solid rgba(0,102,255,0.2);
+            transition: var(--transition);
+        }
+
+        .option-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .option-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-icon {
+            font-size: 2.5em;
+        }
+
+        .option-title {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .option-title span {
+            color: var(--primary);
+            font-size: 0.8em;
+            display: block;
+            font-weight: 400;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed rgba(0,102,255,0.3);
+            border-radius: var(--border-radius-md);
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+            background: rgba(0,102,255,0.05);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(0,102,255,0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-area i {
+            font-size: 3em;
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .upload-area p {
+            color: var(--gray-3);
+        }
+
+        .upload-area p strong {
+            color: var(--primary);
+        }
+
+        /* Textarea */
+        .code-area {
+            width: 100%;
+            height: 250px;
+            background: var(--dark-3);
+            border: 1px solid rgba(0,102,255,0.3);
+            border-radius: var(--border-radius-md);
+            padding: 15px;
+            color: var(--light);
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            margin-bottom: 20px;
+        }
+
+        .code-area:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* File Info */
+        .file-info {
+            background: var(--dark-3);
+            border-radius: var(--border-radius-sm);
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid rgba(0,102,255,0.2);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .file-details {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-details i {
+            color: var(--primary);
+            font-size: 1.2em;
+        }
+
+        .file-name {
+            color: var(--light);
+            font-weight: 500;
+        }
+
+        .file-size {
+            color: var(--gray-3);
+            font-size: 0.9em;
+        }
+
+        .file-remove {
+            background: none;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: var(--transition);
+        }
+
+        .file-remove:hover {
+            transform: scale(1.2);
+        }
+
+        /* Project Name Input */
+        .project-name-input {
+            margin-bottom: 20px;
+        }
+
+        .project-name-input input {
+            width: 100%;
+            padding: 15px;
+            background: var(--dark-3);
+            border: 1px solid rgba(0,102,255,0.3);
+            border-radius: var(--border-radius-sm);
+            color: var(--light);
+            font-size: 16px;
+        }
+
+        .project-name-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: var(--border-radius-md);
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--gradient-1);
+            color: var(--light);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result Card */
+        .result-card {
+            background: var(--dark-2);
+            border-radius: var(--border-radius-lg);
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid var(--primary);
+            box-shadow: var(--shadow-glow);
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .result-card.show {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+
+        .result-title {
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .result-title span {
+            color: var(--primary);
+        }
+
+        .url-container {
+            background: var(--dark-3);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0,102,255,0.3);
+        }
+
+        .url-label {
+            color: var(--gray-3);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .url-value {
+            color: var(--primary);
+            font-size: 1.2em;
+            word-break: break-all;
+            font-family: 'Consolas', monospace;
+        }
+
+        .url-value a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .url-value a:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+
+        .action-btn.copy {
+            background: var(--dark-3);
+            color: var(--light);
+            border: 1px solid var(--primary);
+        }
+
+        .action-btn.copy:hover {
+            background: var(--primary);
+        }
+
+        .action-btn.visit {
+            background: var(--gradient-1);
+            color: var(--light);
+        }
+
+        .action-btn.visit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Error Message */
+        .error-message {
+            background: rgba(255,51,102,0.1);
+            border: 1px solid var(--error);
+            border-radius: var(--border-radius-md);
+            padding: 15px;
+            color: var(--error);
+            margin-top: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--dark-3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .upload-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SILA WEB HOSTING</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/new-project.html" class="active">New Project</a>
+            <a href="/my-projects.html">My Projects</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/support.html">Support</a>
+        </div>
+        <div class="user-menu" id="userMenu">
+            <span class="username" id="username">Loading...</span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Create New <span>Project</span></h1>
+            <p>Upload your website files or paste HTML code to get a live link instantly</p>
+        </div>
+
+        <!-- Upload Options -->
+        <div class="upload-options">
+            <!-- ZIP Upload -->
+            <div class="option-card">
+                <div class="option-header">
+                    <div class="option-icon">📦</div>
+                    <div class="option-title">
+                        Upload ZIP
+                        <span>Supports HTML, CSS, JS, assets</span>
+                    </div>
+                </div>
+
+                <div class="project-name-input">
+                    <input type="text" id="zipProjectName" placeholder="Project name (optional)">
+                </div>
+
+                <div class="upload-area" id="zipDropArea">
+                    <i>📁</i>
+                    <p><strong>Click or drag</strong> your ZIP file here</p>
+                    <p style="font-size: 0.9em; margin-top: 10px;">Maximum size: 100MB</p>
+                    <input type="file" id="zipInput" accept=".zip" hidden>
+                </div>
+
+                <div class="file-info" id="zipFileInfo" style="display: none;">
+                    <div class="file-details">
+                        <i>📄</i>
+                        <span class="file-name" id="zipFileName"></span>
+                        <span class="file-size" id="zipFileSize"></span>
+                    </div>
+                    <button class="file-remove" id="removeZipFile">✕</button>
+                </div>
+
+                <button class="btn" id="uploadZipBtn" disabled>
+                    🚀 Deploy ZIP Project
+                </button>
+            </div>
+
+            <!-- HTML Upload -->
+            <div class="option-card">
+                <div class="option-header">
+                    <div class="option-icon">📝</div>
+                    <div class="option-title">
+                        Paste HTML
+                        <span>Direct code upload</span>
+                    </div>
+                </div>
+
+                <div class="project-name-input">
+                    <input type="text" id="htmlProjectName" placeholder="Project name (optional)">
+                </div>
+
+                <textarea class="code-area" id="htmlCode" placeholder="<!DOCTYPE html>
+<html>
+<head>
+    <title>My Website</title>
+</head>
+<body>
+    <h1>Hello World!</h1>
+</body>
+</html>"></textarea>
+
+                <button class="btn" id="uploadHtmlBtn">
+                    🚀 Deploy HTML Code
+                </button>
+            </div>
+        </div>
+
+        <!-- Loader -->
+        <div class="loader" id="loader"></div>
+
+        <!-- Result Card -->
+        <div class="result-card" id="resultCard">
+            <div class="result-header">
+                <div class="result-icon">✅</div>
+                <div class="result-title">
+                    Deployment <span>Successful!</span>
+                </div>
+            </div>
+
+            <div class="url-container">
+                <span class="url-label">Your Live Website URL:</span>
+                <div class="url-value" id="resultUrl"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button class="action-btn copy" onclick="copyUrl()">
+                    📋 Copy URL
+                </button>
+                <a href="#" class="action-btn visit" id="visitBtn" target="_blank">
+                    🔗 Visit Website
+                </a>
+            </div>
+        </div>
+
+        <!-- Error Message -->
+        <div class="error-message" id="errorMessage"></div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+        let selectedZipFile = null;
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                if (!data.success) {
+                    window.location.href = '/login.html';
+                    return null;
+                }
+                
+                document.getElementById('username').textContent = `👤 ${data.data.username}`;
+                return data.data;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.href = '/login.html';
+                return null;
+            }
+        }
+
+        // Logout
+        window.logout = async function() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+
+        // ZIP Upload Handlers
+        const zipDropArea = document.getElementById('zipDropArea');
+        const zipInput = document.getElementById('zipInput');
+        const zipFileInfo = document.getElementById('zipFileInfo');
+        const zipFileName = document.getElementById('zipFileName');
+        const zipFileSize = document.getElementById('zipFileSize');
+        const removeZipFile = document.getElementById('removeZipFile');
+        const uploadZipBtn = document.getElementById('uploadZipBtn');
+        const zipProjectName = document.getElementById('zipProjectName');
+
+        zipDropArea.addEventListener('click', () => {
+            zipInput.click();
+        });
+
+        zipDropArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            zipDropArea.style.borderColor = 'var(--primary)';
+            zipDropArea.style.background = 'rgba(0,102,255,0.1)';
+        });
+
+        zipDropArea.addEventListener('dragleave', () => {
+            zipDropArea.style.borderColor = 'rgba(0,102,255,0.3)';
+            zipDropArea.style.background = 'rgba(0,102,255,0.05)';
+        });
+
+        zipDropArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            zipDropArea.style.borderColor = 'rgba(0,102,255,0.3)';
+            zipDropArea.style.background = 'rgba(0,102,255,0.05)';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && (file.type === 'application/zip' || file.name.endsWith('.zip'))) {
+                handleZipFile(file);
+            } else {
+                showError('Please select a valid ZIP file');
+            }
+        });
+
+        zipInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                handleZipFile(file);
+            }
+        });
+
+        removeZipFile.addEventListener('click', () => {
+            selectedZipFile = null;
+            zipFileInfo.style.display = 'none';
+            uploadZipBtn.disabled = true;
+            zipInput.value = '';
+        });
+
+        function handleZipFile(file) {
+            selectedZipFile = file;
+            zipFileName.textContent = file.name;
+            zipFileSize.textContent = `(${(file.size / 1024).toFixed(2)} KB)`;
+            zipFileInfo.style.display = 'flex';
+            uploadZipBtn.disabled = false;
+        }
+
+        // Upload ZIP
+        uploadZipBtn.addEventListener('click', async () => {
+            if (!selectedZipFile) return;
+
+            const formData = new FormData();
+            formData.append('file', selectedZipFile);
+            
+            const projectName = zipProjectName.value.trim();
+            if (projectName) {
+                formData.append('name', projectName);
+            }
+
+            showLoader();
+            hideResult();
+            hideError();
+
+            try {
+                const response = await fetch(`${API_URL}/projects/upload/zip`, {
+                    method: 'POST',
+                    body: formData,
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult(data.data.url);
+                    
+                    // Reset
+                    selectedZipFile = null;
+                    zipFileInfo.style.display = 'none';
+                    uploadZipBtn.disabled = true;
+                    zipInput.value = '';
+                    zipProjectName.value = '';
+                } else {
+                    showError(data.error || 'Upload failed');
+                }
+            } catch (error) {
+                showError('Failed to connect to server');
+            } finally {
+                hideLoader();
+            }
+        });
+
+        // Upload HTML
+        const htmlCode = document.getElementById('htmlCode');
+        const uploadHtmlBtn = document.getElementById('uploadHtmlBtn');
+        const htmlProjectName = document.getElementById('htmlProjectName');
+
+        uploadHtmlBtn.addEventListener('click', async () => {
+            const html = htmlCode.value.trim();
+
+            if (!html) {
+                showError('Please enter HTML code');
+                return;
+            }
+
+            showLoader();
+            hideResult();
+            hideError();
+
+            try {
+                const response = await fetch(`${API_URL}/projects/upload/html`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        html,
+                        name: htmlProjectName.value.trim() || undefined
+                    }),
+                    credentials: 'include'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult(data.data.url);
+                    htmlCode.value = '';
+                    htmlProjectName.value = '';
+                } else {
+                    showError(data.error || 'Upload failed');
+                }
+            } catch (error) {
+                showError('Failed to connect to server');
+            } finally {
+                hideLoader();
+            }
+        });
+
+        // Helper Functions
+        function showLoader() {
+            document.getElementById('loader').style.display = 'block';
+        }
+
+        function hideLoader() {
+            document.getElementById('loader').style.display = 'none';
+        }
+
+        function showResult(url) {
+            const resultCard = document.getElementById('resultCard');
+            const resultUrl = document.getElementById('resultUrl');
+            const visitBtn = document.getElementById('visitBtn');
+            
+            resultUrl.innerHTML = `<a href="${url}" target="_blank">${url}</a>`;
+            visitBtn.href = url;
+            resultCard.classList.add('show');
+        }
+
+        function hideResult() {
+            document.getElementById('resultCard').classList.remove('show');
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 5000);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').classList.remove('show');
+        }
+
+        window.copyUrl = function() {
+            const url = document.getElementById('resultUrl').textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                alert('✅ URL copied to clipboard!');
+            }).catch(() => {
+                alert('❌ Failed to copy URL');
+            });
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>
