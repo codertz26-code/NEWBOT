@@ -25,10 +25,6 @@
       "description": "Secret key for JWT tokens",
       "generator": "secret"
     },
-    "MONGODB_URI": {
-      "description": "MongoDB connection string",
-      "required": false
-    },
     "EMAIL_USER": {
       "description": "Gmail email address for OTP",
       "required": false
