@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support - SILA WEB HOSTING</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #0066ff;
+            --primary-dark: #0052cc;
+            --primary-light: #4d94ff;
+            --secondary: #00cc99;
+            --accent: #ff3366;
+            --dark: #0a0a0a;
+            --dark-2: #111111;
+            --dark-3: #1a1a1a;
+            --dark-4: #222222;
+            --light: #ffffff;
+            --gray-1: #f5f5f5;
+            --gray-2: #e0e0e0;
+            --gray-3: #b0b0b0;
+            --gray-4: #808080;
+            --success: #00cc99;
+            --warning: #ffaa00;
+            --error: #ff3366;
+            --gradient-1: linear-gradient(135deg, #0066ff, #00cc99);
+            --gradient-2: linear-gradient(135deg, #0066ff, #ff3366);
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.4);
+            --shadow-lg: 0 8px 16px rgba(0,0,0,0.5);
+            --shadow-glow: 0 0 20px rgba(0,102,255,0.3);
+            --border-radius-sm: 8px;
+            --border-radius-md: 12px;
+            --border-radius-lg: 16px;
+            --border-radius-xl: 24px;
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--dark);
+            color: var(--light);
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--dark-2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(0,102,255,0.2);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 900;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after,
+        .nav-links a.active::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: var(--border-radius-sm);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-login {
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-login:hover {
+            background: var(--primary);
+            color: var(--light);
+        }
+
+        .btn-register {
+            background: var(--gradient-1);
+            color: var(--light);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .username {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .btn-logout {
+            padding: 8px 20px;
+            background: transparent;
+            color: var(--error);
+            border: 2px solid var(--error);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-logout:hover {
+            background: var(--error);
+            color: var(--light);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Section */
+        .support-hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(0,102,255,0.1), rgba(0,204,153,0.1));
+            border-radius: var(--border-radius-xl);
+            margin-bottom: 40px;
+        }
+
+        .support-hero h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+
+        .support-hero h1 span {
+            color: var(--primary);
+        }
+
+        .support-hero p {
+            font-size: 1.2em;
+            color: var(--gray-3);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Support Grid */
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .support-card {
+            background: var(--dark-2);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            text-align: center;
+            border: 1px solid rgba(0,102,255,0.2);
+            transition: var(--transition);
+        }
+
+        .support-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .support-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .support-card h3 {
+            font-size: 1.5em;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .support-card p {
+            color: var(--gray-3);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .support-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 30px;
+            background: var(--gradient-1);
+            color: var(--light);
+            text-decoration: none;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .support-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* Contact Info */
+        .contact-section {
+            background: var(--dark-2);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            margin-bottom: 40px;
+            border: 1px solid rgba(0,102,255,0.2);
+        }
+
+        .contact-section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: var(--dark-3);
+            border-radius: var(--border-radius-md);
+            transition: var(--transition);
+        }
+
+        .contact-item:hover {
+            transform: translateX(5px);
+            border-left: 3px solid var(--primary);
+        }
+
+        .contact-icon {
+            font-size: 2em;
+        }
+
+        .contact-details {
+            flex: 1;
+        }
+
+        .contact-label {
+            color: var(--gray-3);
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .contact-value {
+            color: var(--light);
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .contact-value a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .contact-value a:hover {
+            text-decoration: underline;
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: var(--dark-2);
+            padding: 40px;
+            border-radius: var(--border-radius-lg);
+            border: 1px solid rgba(0,102,255,0.2);
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+
+        .faq-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .faq-item {
+            background: var(--dark-3);
+            border-radius: var(--border-radius-md);
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .faq-question:hover {
+            background: var(--dark-4);
+        }
+
+        .faq-question.active {
+            color: var(--primary);
+        }
+
+        .faq-answer {
+            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: var(--transition);
+            color: var(--gray-3);
+            line-height: 1.6;
+        }
+
+        .faq-answer.show {
+            padding: 20px;
+            max-height: 500px;
+            border-top: 1px solid rgba(0,102,255,0.2);
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 60px;
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(0,102,255,0.2);
+        }
+
+        .footer p {
+            color: var(--gray-3);
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--dark-3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .support-hero h1 {
+                font-size: 2.5em;
+            }
+            
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">SILA WEB HOSTING</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/new-project.html">New Project</a>
+            <a href="/my-projects.html">My Projects</a>
+            <a href="/dashboard.html">Dashboard</a>
+            <a href="/support.html" class="active">Support</a>
+        </div>
+        <div class="auth-buttons" id="authButtons">
+            <!-- Will be populated by JavaScript -->
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="support-hero">
+            <h1>Developer <span>Support</span></h1>
+            <p>Get help, connect with the community, or reach out directly to the developer</p>
+        </div>
+
+        <!-- Support Grid -->
+        <div class="support-grid">
+            <div class="support-card">
+                <div class="support-icon">📱</div>
+                <h3>WhatsApp Channel</h3>
+                <p>Join our official WhatsApp channel for updates, tips, and community discussions about web hosting and development.</p>
+                <a href="https://whatsapp.com/channel/0029VbBG4gfISTkCpKxyMH02" target="_blank" class="support-link">
+                    <span>Join Channel</span> →
+                </a>
+            </div>
+
+            <div class="support-card">
+                <div class="support-icon">💬</div>
+                <h3>WhatsApp Direct</h3>
+                <p>Chat directly with the developer for personalized support, troubleshooting, or business inquiries.</p>
+                <a href="https://wa.me/255637351031" target="_blank" class="support-link">
+                    <span>Chat on WhatsApp</span> →
+                </a>
+            </div>
+
+            <div class="support-card">
+                <div class="support-icon">📨</div>
+                <h3>Telegram</h3>
+                <p>Connect on Telegram for quick responses and technical discussions with the developer.</p>
+                <a href="https://t.me/sir_sila" target="_blank" class="support-link">
+                    <span>@sir_sila</span> →
+                </a>
+            </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="contact-section">
+            <h2>Contact Information</h2>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <div class="contact-icon">📞</div>
+                    <div class="contact-details">
+                        <div class="contact-label">Phone Number</div>
+                        <div class="contact-value">
+                            <a href="tel:+255637351031">+255 637 351 031</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">💬</div>
+                    <div class="contact-details">
+                        <div class="contact-label">WhatsApp</div>
+                        <div class="contact-value">
+                            <a href="https://wa.me/255637351031">+255 637 351 031</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📨</div>
+                    <div class="contact-details">
+                        <div class="contact-label">Telegram</div>
+                        <div class="contact-value">
+                            <a href="https://t.me/sir_sila">@sir_sila</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-details">
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value">
+                            <a href="mailto:support@silawebhosting.com">support@silawebhosting.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How do I upload my website?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        You have two options: 1) Upload a ZIP file containing all your website files (HTML, CSS, JS, images), or 2) Paste your HTML code directly in the text area. Both methods will give you a live link immediately.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is it really free?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! SILA WEB HOSTING is completely free. You can host unlimited projects with no hidden costs. We provide free SSL certificates and 100MB storage per project.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>What file types are supported?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        We support all standard web files: HTML, CSS, JavaScript, images (PNG, JPG, GIF, SVG), fonts, and more. For ZIP uploads, make sure your main file is named index.html.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>How long do projects stay online?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        Projects stay online indefinitely as long as they are active. We don't delete projects unless they violate our terms of service or remain inactive for an extended period.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Can I use a custom domain?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! You can connect your own domain name to your hosted project. Contact us through WhatsApp or Telegram for assistance with custom domain setup.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>Is there a file size limit?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, each project has a maximum file size of 100MB. If you need more space for larger projects, please contact us for special arrangements.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2024 SILA WEB HOSTING • Premium Free Hosting Service</p>
+        <p style="margin-top: 10px;">Built with ❤️ by Sila MD</p>
+    </footer>
+
+    <div class="loader" id="loader"></div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Check authentication status
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    credentials: 'include'
+                });
+                const data = await response.json();
+                
+                const authButtons = document.getElementById('authButtons');
+                
+                if (data.success) {
+                    authButtons.innerHTML = `
+                        <div class="user-menu">
+                            <span class="username">👤 ${data.data.username}</span>
+                            <button class="btn-logout" onclick="logout()">Logout</button>
+                        </div>
+                    `;
+                } else {
+                    authButtons.innerHTML = `
+                        <a href="/login.html" class="btn btn-login">Login</a>
+                        <a href="/register.html" class="btn btn-register">Register</a>
+                    `;
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+            }
+        }
+
+        // Logout
+        window.logout = async function() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+
+        // Toggle FAQ
+        window.toggleFAQ = function(element) {
+            const answer = element.nextElementSibling;
+            const icon = element.querySelector('.faq-icon');
+            
+            answer.classList.toggle('show');
+            element.classList.toggle('active');
+            icon.textContent = answer.classList.contains('show') ? '▲' : '▼';
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+</body>
+</html>
